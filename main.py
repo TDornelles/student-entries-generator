@@ -17,7 +17,6 @@ def generate_cpf():
 
 
 def generate_first_digit(cpf):
-    print("first digit")
     pos = 10
     result = 0
     while pos >= 2:
@@ -37,7 +36,7 @@ def generate_second_digit(cpf):
     pos = 11
     result = 0
     while pos >= 2:
-        mult = int(cpf[10 - pos]) * pos
+        mult = int(cpf[11 - pos]) * pos
         result += mult
         pos -= 1
 
@@ -67,3 +66,4 @@ def __main__():
     # posts.insert_one(student).inserted_id
 
 
+generate_cpf()
