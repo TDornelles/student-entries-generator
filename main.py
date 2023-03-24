@@ -10,13 +10,13 @@ import redis
 
 r = redis.Redis(host='localhost', port=6379, db=0)
 
-def get_curso():
+def generate_curso():
     cursos = pd.read_csv('resources/cursos.csv')['CURSONOME'].values.tolist()
     curso = random.choice(cursos)
 
     return curso
 
-def get_name():
+def generate_name():
     first_names = pd.read_csv('resources/nomes.csv')['first_name'].values.tolist()
     first_name = random.choice(first_names)
 
@@ -79,9 +79,9 @@ def generate_second_digit(cpf):
 
 class Student:
     def __init__(self):
-        self.nome: str = get_name()
+        self.nome: str = generate_name()
         self.cpf: str = generate_cpf()
-        self.curso: str = get_curso()
+        self.curso: str = generate_curso()
         self.ano: str = generate_year()
 
     def to_string(self):
