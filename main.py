@@ -1,13 +1,14 @@
 import random
+from uuid import UUID
 
-import names_dataset
 import pandas as pd
 from numpy.random import randint
 from pymongo import MongoClient
-from names_dataset import NameDataset, NameWrapper
 
 import resources.mongo_strings
+import redis
 
+r = redis.Redis(host='localhost', port=6379, db=0)
 
 def get_curso():
     cursos = pd.read_csv('resources/cursos.csv')['CURSONOME'].values.tolist()
@@ -77,32 +78,42 @@ def generate_second_digit(cpf):
 
 
 class Student:
-    first_names = pd.read_csv('resources/nomes.csv')
-    first_names.columns
+    def __init__(self):
+        self.nome: str = get_name()
+        self.cpf: str = generate_cpf()
+        self.curso: str = get_curso()
+        self.ano: str = generate_year()
 
-    cpf = generate_cpf()
+    def to_string(self):
+        print(self.nome + self.cpf + self.curso + self.ano)
 
 
-def make_students_json():
+def make_student_json(student: Student):
+    student_json = {
+        "nome": student.nome,
+        "cpf": student.cpf,
+        "curso": student.curso,
+        "ano": student.ano
+    }
 
-    nd = names_dataset
-    name_data = pd.read_csv('resources/nomes.csv')
-    curso = get_curso()
+    return student_json
 
 
 def __main__():
-    client = \
-        MongoClient(resources.mongo_strings.connection_string)
+    client = MongoClient(resources.mongo_strings.connection_string)
 
     db = client.redis_test
     collection = db.students
+    doc_count = int(input("insert how many documents?"))
+    for i in range(doc_count):
+        student = Student()
+        student_json = make_student_json(student)
+        collection.insert_one(student_json)
 
-    posts = db.posts
-
-    # posts.insert_one(student).inserted_id
-
-
-
-get_name()
+    r.flushall()
+    cursor = collection.find({})
+    for document in cursor:
+        r.set(str(generate_cpf()), str(document))
 
 
+__main__()
