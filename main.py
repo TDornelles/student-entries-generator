@@ -1,6 +1,5 @@
 import random
-from uuid import UUID
-
+import secrets
 import pandas as pd
 from numpy.random import randint
 from pymongo import MongoClient
@@ -10,11 +9,13 @@ import redis
 
 r = redis.Redis(host='localhost', port=6379, db=0)
 
+
 def generate_curso():
     cursos = pd.read_csv('resources/cursos.csv')['CURSONOME'].values.tolist()
     curso = random.choice(cursos)
 
     return curso
+
 
 def generate_name():
     first_names = pd.read_csv('resources/nomes.csv')['first_name'].values.tolist()
@@ -41,40 +42,33 @@ def generate_cpf():
 
     cpf = generate_first_digit(cpf)
     cpf = generate_second_digit(cpf)
+    print(cpf)
     return cpf
+
+
+def cpf_calculation(cpf, pos):
+    result = 0
+    while pos >= 2:
+        mult = int(cpf[len(cpf) - pos + 1]) * pos
+        result += mult
+        pos -= 1
+
+    result = result % 11
+    if result < 2:
+        return cpf + "0"
+    else:
+        result = 11 - result
+        return cpf + str(result)
 
 
 def generate_first_digit(cpf):
     pos = 10
-    result = 0
-    while pos >= 2:
-        mult = int(cpf[10 - pos]) * pos
-        result += mult
-        pos -= 1
-
-    result = result % 11
-    if result < 2:
-        return cpf + "0"
-    else:
-        result = 11 - result
-        return cpf + str(result)
+    return cpf_calculation(cpf, pos)
 
 
 def generate_second_digit(cpf):
     pos = 11
-    result = 0
-    while pos >= 2:
-        mult = int(cpf[11 - pos]) * pos
-        result += mult
-        pos -= 1
-
-    result = result % 11
-
-    if result < 2:
-        return cpf + "0"
-    else:
-        result = 11 - result
-        return cpf + str(result)
+    return cpf_calculation(cpf, pos)
 
 
 class Student:
@@ -116,4 +110,5 @@ def __main__():
         r.set(str(generate_cpf()), str(document))
 
 
-__main__()
+# __main__()
+generate_cpf()
